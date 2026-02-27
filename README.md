@@ -1,16 +1,26 @@
-ส่วนที่ 1: Docker Commands (จัดการ Database Server)
-🔹 1️⃣ เริ่ม PostgreSQL Container
+🐘 Team Database Project
+
+PostgreSQL + Docker + Migration Workflow
+
+โปรเจคนี้ใช้ PostgreSQL รันผ่าน Docker เพื่อให้ทีม 5 คนสามารถใช้ database ตัวเดียวกันได้
+
+📦 ส่วนที่ 1: Docker Commands (จัดการ Database Server)
+1️⃣ เริ่ม PostgreSQL Container
 docker compose up -d
 
+ทำอะไร?
+
 สร้างและเปิด PostgreSQL container จาก docker-compose.yml
+
+รันแบบ background (-d = detached mode)
 
 ใช้เมื่อไร?
 
 ครั้งแรกที่เริ่มโปรเจค
 
-หรือหลังจาก docker compose down
+หลังจากใช้ docker compose down
 
-🔹 2️⃣ ปิด Container
+2️⃣ ปิด Container
 docker compose down
 
 ทำอะไร?
@@ -23,14 +33,14 @@ docker compose down
 
 เปลี่ยน config ใน docker-compose.yml
 
-🔹 3️⃣ ดูว่า container รันอยู่ไหม
+3️⃣ ดูว่า Container รันอยู่ไหม
 docker ps
 
 ทำอะไร?
 
 แสดง container ที่กำลังรันอยู่
 
-🔹 4️⃣ เข้า PostgreSQL (psql)
+4️⃣ เข้า PostgreSQL (psql)
 docker exec -it team_db psql -U admin -d teamdb
 
 ทำอะไร?
@@ -41,39 +51,40 @@ docker exec -it team_db psql -U admin -d teamdb
 
 ใช้เมื่อไร?
 
-จะพิมพ์ SQL ตรง ๆ
+พิมพ์ SQL ตรง ๆ
 
-จะตรวจสอบ table
+ตรวจสอบ table
 
-🐘 ส่วนที่ 2: PostgreSQL Commands (ใช้ใน psql)
+debug ปัญหา
 
-เมื่อเข้าแล้วจะเห็น:
+เมื่อเข้าแล้วจะเห็นแบบนี้:
 
 teamdb=#
-🔹 5️⃣ ดูรายการ table
+🐘 ส่วนที่ 2: PostgreSQL Commands (ใช้ใน psql)
+5️⃣ ดูรายการ Table
 \dt
-
-ทำอะไร?
 
 แสดง table ทั้งหมดใน database
 
-🔹 6️⃣ ดูโครงสร้าง table
+6️⃣ ดูโครงสร้าง Table
 \d table_name
 
 ตัวอย่าง:
 
 \d users
 
-ทำอะไร?
+แสดง:
 
-ดู column, datatype, constraint
+column
 
-🔹 7️⃣ ออกจาก PostgreSQL
+datatype
+
+constraint
+
+7️⃣ ออกจาก PostgreSQL
 \q
-
-
 📂 ส่วนที่ 3: Migration Commands (รันไฟล์ SQL)
-🔹 8️⃣ รันไฟล์ SQL (PowerShell version)
+8️⃣ รันไฟล์ SQL (PowerShell - Windows)
 Get-Content .\migrations\001_create_tables.sql | docker exec -i team_db psql -U admin -d teamdb
 
 ทำอะไร?
@@ -92,46 +103,56 @@ Get-Content .\migrations\001_create_tables.sql | docker exec -i team_db psql -U 
 
 เพิ่ม constraint
 
-🔹 9️⃣ รันไฟล์ SQL (ถ้าใช้ Git Bash)
+9️⃣ รันไฟล์ SQL (Git Bash / Mac / Linux)
 docker exec -i team_db psql -U admin -d teamdb < migrations/001_create_tables.sql
 📊 ส่วนที่ 4: SQL พื้นฐานที่ควรรู้
-🔹 🔟 สร้าง table
+🔟 สร้าง Table
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL
 );
-
-ทำอะไร?
-
-สร้าง table ใหม่
-
-🔹 1️⃣1️⃣ เพิ่ม column
+1️⃣1️⃣ เพิ่ม Column
 ALTER TABLE users ADD COLUMN email TEXT;
-🔹 1️⃣2️⃣ เพิ่มข้อมูล
+1️⃣2️⃣ เพิ่มข้อมูล
 INSERT INTO users (username)
 VALUES ('John');
-🔹 1️⃣3️⃣ ดูข้อมูล
+1️⃣3️⃣ ดูข้อมูล
 SELECT * FROM users;
-🔹 1️⃣4️⃣ ลบ table
+1️⃣4️⃣ ลบ Table
 DROP TABLE users;
 
-⚠ ใช้ระวัง เพราะลบถาวร
+⚠ คำเตือน: ลบถาวร กู้คืนไม่ได้
 
-🧠 ส่วนที่ 5: คำสั่ง Debug ที่ใช้บ่อย
-🔹 ดู database ทั้งหมด
+🧠 ส่วนที่ 5: Debug Commands
+ดู database ทั้งหมด
 \l
-🔹 เปลี่ยน database
+เปลี่ยน database
 \c teamdb
-🎓 สรุป Workflow ที่ทีมควรใช้
-ทุกครั้งที่เริ่มงาน
+🎓 Workflow ที่ทีมควรใช้
+✅ ทุกครั้งที่เริ่มงาน
 docker compose up -d
-เพิ่มโครงสร้างใหม่
+✅ เมื่อเพิ่มโครงสร้างใหม่
 
-สร้างไฟล์ใน migrations/
+สร้างไฟล์ใหม่ในโฟลเดอร์ migrations/
 
-รันด้วย:
+ตัวอย่าง:
 
-Get-Content .\migrations\xxx.sql | docker exec -i team_db psql -U admin -d teamdb
-ตรวจสอบ
+migrations/002_add_email_to_users.sql
+
+รันไฟล์
+
+PowerShell
+
+Get-Content .\migrations\002_add_email_to_users.sql | docker exec -i team_db psql -U admin -d teamdb
+
+Git Bash
+
+docker exec -i team_db psql -U admin -d teamdb < migrations/002_add_email_to_users.sql
+✅ ตรวจสอบผลลัพธ์
 docker exec -it team_db psql -U admin -d teamdb
+
+แล้วพิมพ์
+
 \dt
+📁 โครงสร้างโปรเจคแนะนำ
+    └── 002_add_email.sql
